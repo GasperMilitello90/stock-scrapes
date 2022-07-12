@@ -3,10 +3,11 @@ from bs4 import BeautifulSoup
 import datetime
 import sqlite3
 
+#connecting to sqlite3 database
 conn = sqlite3.connect('techstockdata.db')
 c = conn.cursor()
 
-#c.execute('''CREATE TABLE techstocks(date DATE, stock TEXT, price REAL, pricechange REAL, pctchange TEXT)''' )
+#functions used to scrape each individual stock
 def getStockdataNVDA(url):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'}
     r = requests.get(url, headers=headers)
@@ -17,7 +18,7 @@ def getStockdataNVDA(url):
     pricechange = soup.find('div', {'class': "D(ib) Mend(20px)"}).find_all('fin-streamer')[1].text
     pctchange = soup.find('div', {'class': "D(ib) Mend(20px)"}).find_all('fin-streamer')[2].text
     c.execute('''INSERT INTO techstocks VALUES (?, ?, ?, ?, ?)''', (current_date, stock, price, pricechange, pctchange))
-    #print(current_date, stock, price, pricechange, pctchange)
+    #data input to sqlite3 DB
     return
 
 def getStockdataAMD(url):
@@ -78,6 +79,7 @@ getStockdataAMD('https://finance.yahoo.com/quote/AMD')
 getStockdataAMZN('https://finance.yahoo.com/quote/AMZN')
 getStockdataTSLA('https://finance.yahoo.com/quote/TSLA')
 getStockdataMSFT('https://finance.yahoo.com/quote/MSFT')
+#each stock getting scraped
 
 conn.commit()
 print('complete.')
@@ -85,5 +87,6 @@ print('complete.')
 c.execute('''SELECT * FROM techstocks''')
 results = c.fetchall()
 print(results)
+#selects all data from database and prints results
 
 conn.close()
